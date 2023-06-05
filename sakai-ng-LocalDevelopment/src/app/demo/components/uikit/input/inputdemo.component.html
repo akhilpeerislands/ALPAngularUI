@@ -25,7 +25,7 @@
 					<div class="col-12 md:col-6">
 						<div class="field">
 							<h6>Start Time</h6>
-						<p-calendar [timeOnly]="true" hourFormat = "12" [(ngModel)]="selectedPopUpStartTime" (onSelect)="compareTwoTimesM()" placeholder="hh:mm">
+						<p-calendar [timeOnly]="true" hourFormat = "12" [(ngModel)]="selectedPopUpStartTime" (onSelect)="compareTwoTimesM();checkPopupValidations()" placeholder="hh:mm">
 							<ng-template class="align-self-center" pTemplate="footer">Choose local time</ng-template>
 						</p-calendar>
 					</div>
@@ -33,12 +33,12 @@
 					<div class="col-12 md:col-6">
 						<div class="field">
 							<h6>End Time</h6>
-						<p-calendar [timeOnly]="true"  hourFormat = "12" [(ngModel)]="selectedPopUpEndTime" (onSelect)="compareTwoTimesM()" placeholder="hh:mm">
+						<p-calendar [timeOnly]="true"  hourFormat = "12" [(ngModel)]="selectedPopUpEndTime" (onSelect)="compareTwoTimesM();checkPopupValidations()" placeholder="hh:mm">
 							<ng-template pTemplate="footer">Choose local time</ng-template>
 						</p-calendar>
 					</div>
 					</div>
-					<div *ngIf="invalidDate" class="col-12 md:col-12">
+					<div *ngIf="invalidPopupDate" class="col-12 md:col-12">
 						<div>
 							<p-message severity="error" text="End Time should be greater than Start Time">
 							</p-message>
@@ -48,14 +48,14 @@
 				<h5>Appointment With</h5>
 				<div class="grid formgrid">
 					<div class="field col-12 mb-2 lg:col-12 lg:mb-0">
-						<p-dropdown [options]="supervisionClients" [(ngModel)]="selectedPopUpAppointmentWith" placeholder={{selectedPopUpAppointmentWith.label}} [filter]="true" filterBy="label" [showClear]="true"></p-dropdown>
+						<p-dropdown [options]="supervisionClients" [(ngModel)]="selectedPopUpAppointmentWith" placeholder={{selectedPopUpAppointmentWith.label}} [filter]="true" filterBy="label" (onSelect)= "checkPopupValidations()" [showClear]="true"></p-dropdown>
 					</div>	
 				</div>
 	
 				
 				<br>
 				<div class="formgroup-inline">
-					<button pButton label="Update" (click)="updateMeeting()"></button>
+					<button pButton label="Update" disabled="disableUpdate" (click)="updateMeeting()"></button>
 				</div>
 	
 			</div>
@@ -69,7 +69,7 @@
 			<h5>Select Meeting Type</h5>
 			<div class="grid formgrid">
 				<div class="field col-12 mb-2 lg:col-12 lg:mb-0">
-					<p-dropdown [options]="masterMeetings"  [(ngModel)]="selectedMeeting" placeholder="Choose a Meeting" [showClear]="true"></p-dropdown>
+					<p-dropdown [options]="masterMeetings"  [(ngModel)]="selectedMeeting" (onChange) = "onMeetingsChanged()" placeholder="Choose a Meeting" [showClear]="true" ></p-dropdown>
 				</div>	
 			</div>
 			<h5>Schedule Meeting On</h5>

@@ -10,6 +10,15 @@ export class ProductService {
 
     constructor(private http: HttpClient) { }
 
+    supervisor!: any;
+
+    setSupervisor(supervisor: any)
+    {
+      this.supervisor = supervisor;
+    }
+
+    getSupervisor(): any { return this.supervisor; }
+
     getAllMeetings(): Observable<any> {
         const url = 'http://localhost:8080/getallmeets';
       
@@ -38,6 +47,20 @@ export class ProductService {
           })
         );
       }
+
+      loginSupervisor(supervisorMailId: any): Observable<any> {
+        const url = 'http://localhost:8080/loginSupervisor/'+supervisorMailId;
+      
+        const headers = new HttpHeaders()
+          .set('Content-Type', 'application/json')
+        return this.http.get(url, { headers }).pipe(
+          catchError(error => {
+            console.error(error);
+            return throwError(error);
+          })
+        );
+      }
+
       scheduleMeeting(body: any): Observable<any> {
         const url = 'http://localhost:8080/scheduleMeeting';
       console.log("hello");

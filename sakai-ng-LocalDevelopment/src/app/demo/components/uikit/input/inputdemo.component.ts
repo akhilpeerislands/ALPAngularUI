@@ -69,7 +69,11 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     invalidDate = false;
 
+    invalidPopupDate = false;
+
     disableSubmit = true;
+
+    disableUpdate = true;
 
     display = false;
 
@@ -86,6 +90,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
     selectedPopUpDate: any;
 
     supervisor = "ADelgado@autismlearningpartners.com";
+
+    podMeeting = "Monthly POD meeting";
     
     selectedPopUpAppointmentWith: SelectItem = { value: '' };
     
@@ -129,9 +135,24 @@ export class InputDemoComponent implements OnInit, OnChanges {
             this.disableSubmit = true;
             return;
         }
+        
         this.disableSubmit = false;
     }
-
+    checkPopupValidations()
+    {
+      if(this.selectedPopUpDate & this.selectedPopUpStartTime & this.selectedPopUpEndTime)
+      {}
+      else
+      {
+        return;
+      }
+      this.invalidPopupDate = this.selectedPopUpStartTime > this.selectedPopUpEndTime;
+      if(this.invalidPopupDate){
+          this.disableUpdate = true;
+          return;
+      }
+      this.disableUpdate = false;
+    }
     getMasterMeetings(){
         this.productService.getAllMasterMeetings().subscribe(data => {
             console.log(data);
@@ -186,6 +207,17 @@ export class InputDemoComponent implements OnInit, OnChanges {
             console.error(error);
           });    
     }
+
+    onMeetingsChanged(){
+      if(this.selectedMeeting.name == this.podMeeting)
+      {
+        this.selectedMultiBT = this.BTs;
+      }
+      else
+      {
+        this.selectedMultiBT = [];
+      }
+    }
     convertBTResponse(response: any[]): any {
         return response.map((bt, index) => ({
           label: bt.btName,
@@ -206,8 +238,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
     }
       convertSupervisionResponse(response: any[]): any {
         return response.map((client, index) => ({
-          label: client["Client Full Name"],
-          value: { id: client._id, name: client["Client Full Name"], crId: client["CR ID"], clientName: client.ClientName, providertype: client["Provider Tyoe"]}
+          label: client.clientFullName,
+          value: { id: client._id, name: client.clientFullName, crId: client.crID, clientName: client.ClientName, providertype: client.providerType}
         }));
       }
 
