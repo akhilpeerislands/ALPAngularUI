@@ -57,7 +57,11 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     supervisionClients: any[] = [];
 
+    clientIdEntered: string = '';
+
     selectedClient: SelectItem = { value: '' };
+
+    selectedClientSupervisionTypeOrClientName: any;
 
     selectedDate: any;
 
@@ -94,6 +98,9 @@ export class InputDemoComponent implements OnInit, OnChanges {
     podMeeting = "Monthly POD meeting";
     
     selectedPopUpAppointmentWith: SelectItem = { value: '' };
+
+    allSupervisionClients: any;
+  clients: any;
     
     constructor(private countryService: CountryService, private productService: ProductService) { }
 
@@ -106,6 +113,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
         this.getSupervisors();
 
         this.getBTs();
+
+        //this.getAllClients();
     }
     
     ngOnChanges() {
@@ -153,6 +162,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
       }
       this.disableUpdate = false;
     }
+
     getMasterMeetings(){
         this.productService.getAllMasterMeetings().subscribe(data => {
             console.log(data);
@@ -170,11 +180,34 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     getMeetings(){
         this.productService.getAllMeetings().subscribe(data => {
-            console.log(data);
-            this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
-            }, error => {
-            console.error(error);
-            });
+          console.log(data);
+          this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
+          }, error => {
+          console.error(error);
+          });
+    }
+    getAllClients(){
+      this.productService.getAllClients().subscribe(data => {
+        console.log(data);
+        }, error => {
+        console.error(error);
+        });
+    }
+    getClient(id: any){
+      this.selectedClientSupervisionTypeOrClientName = ''
+      this.productService.getClient(id).subscribe(data => {
+        console.log(data);
+        if(data.length > 0)
+        {
+          this.selectedClientSupervisionTypeOrClientName = "Client Name: "+data[0].clientName;
+        }
+        else
+        {
+          this.selectedClientSupervisionTypeOrClientName = "Invalid Client ID/Client Not Found";
+        }
+      }, error => {
+      console.error(error);
+      });
     }
     convertScheduledMeetingsResponse(response: any[]): any {
         return response.map((meeting, index) => (
@@ -209,6 +242,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
     }
 
     onMeetingsChanged(){
+      this.selectedClient = { value: '' };
+      this.selectedClientSupervisionTypeOrClientName = '';
       if(this.selectedMeeting.name == this.podMeeting)
       {
         this.selectedMultiBT = this.BTs;
@@ -216,6 +251,38 @@ export class InputDemoComponent implements OnInit, OnChanges {
       else
       {
         this.selectedMultiBT = [];
+      }
+      let tempArray: any[] = [];
+      let BAsupervisionClient = "BA Supervision Client";
+      let PMsupervisionClient = "PM Supervision Client";
+      let selectedSupervisionTypes: string[] = [];
+      let BASupervisionMeetingCategory = ["Monthly POD meeting", "Annual Review", "Individual BT Meeting RBT Supervision", "Group RBT Supervision"];
+      if(BASupervisionMeetingCategory.includes(this.selectedMeeting.name??""))
+      {
+        selectedSupervisionTypes.push(BAsupervisionClient);
+      }
+      else
+      {
+        selectedSupervisionTypes.push(BAsupervisionClient);
+        selectedSupervisionTypes.push(PMsupervisionClient);
+      }
+      this.allSupervisionClients.forEach((clientInformation: any) => 
+      {
+        if(selectedSupervisionTypes.includes(clientInformation.supervisionType)){
+          tempArray.push(clientInformation);
+        }
+      });
+      this.supervisionClients = this.convertSupervisionResponse(tempArray);
+    }
+
+    onClientChange(){
+      if(this.selectedClient)
+      {
+        this.selectedClientSupervisionTypeOrClientName = this.selectedClient.supervisionType;
+      }
+      else
+      {
+        this.selectedClientSupervisionTypeOrClientName = null;
       }
     }
     convertBTResponse(response: any[]): any {
@@ -231,6 +298,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
     getSupervisors(){
         this.productService.getSupervisionClients().subscribe(data => {
             console.log(data);
+            this.allSupervisionClients = data;
             this.supervisionClients = this.convertSupervisionResponse(data);
           }, error => {
             console.error(error);
@@ -239,7 +307,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
       convertSupervisionResponse(response: any[]): any {
         return response.map((client, index) => ({
           label: client.clientFullName,
-          value: { id: client._id, name: client.clientFullName, crId: client.crID, clientName: client.ClientName, providertype: client.providerType}
+          value: { id: client._id, name: client.clientFullName, crId: client.crID, clientName: client.ClientName, providertype: client.providerType, supervisionType: client.supervisionType}
         }));
       }
 

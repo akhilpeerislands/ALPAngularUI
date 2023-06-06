@@ -22,11 +22,32 @@ export class ProductService {
     getAllMeetings(): Observable<any> {
         const url = 'http://localhost:8080/getallmeets';
       
-        const headers = new HttpHeaders()
-          .set('Content-Type', 'application/json')
-        //   .set('Access-Control-Request-Headers', '*')
-        //   .set('Acess-Control-Allow-Origin', '*')
-          .set('api-key', 'IutZ4iujBFUYwor2OXKlohvuisWQ9W9hpxp7SYREtmupK0UQ6Rj1ICbnLieT5ivB');
+        const headers = new HttpHeaders();
+      
+        return this.http.get(url, { headers }).pipe(
+          catchError(error => {
+            console.error(error);
+            return throwError(error);
+          })
+        );
+      }
+      getAllClients(): Observable<any> {
+        const url = 'http://localhost:8080/getAllClients';
+      
+        const headers = new HttpHeaders();
+      
+        return this.http.get(url, { headers }).pipe(
+          catchError(error => {
+            console.error(error);
+            return throwError(error);
+          })
+        );
+      }
+      
+      getClient(id: any): Observable<any> {
+        const url = 'http://localhost:8080/getClient/'+id;
+      
+        const headers = new HttpHeaders();
       
         return this.http.get(url, { headers }).pipe(
           catchError(error => {
@@ -64,11 +85,7 @@ export class ProductService {
       scheduleMeeting(body: any): Observable<any> {
         const url = 'http://localhost:8080/scheduleMeeting';
       console.log("hello");
-        const headers = new HttpHeaders()
-          .set('Content-Type', 'application/json')
-        //   .set('Access-Control-Request-Headers', '*')
-        //   .set('Acess-Control-Allow-Origin', '*')
-          .set('api-key', 'IutZ4iujBFUYwor2OXKlohvuisWQ9W9hpxp7SYREtmupK0UQ6Rj1ICbnLieT5ivB');
+        const headers = new HttpHeaders();
       
         return this.http.post(url, body, { headers }).pipe(
           catchError(error => {
@@ -91,9 +108,7 @@ export class ProductService {
       getAllMasterMeetings(): Observable<any> {
         const url = 'http://localhost:8080/masterMeetings';
       
-        const headers = new HttpHeaders()
-          .set('Content-Type', 'application/json')
-          .set('api-key', 'IutZ4iujBFUYwor2OXKlohvuisWQ9W9hpxp7SYREtmupK0UQ6Rj1ICbnLieT5ivB');
+        const headers = new HttpHeaders();
       
         return this.http.get(url, { headers }).pipe(
           catchError(error => {
@@ -106,10 +121,7 @@ export class ProductService {
         const url = 'http://localhost:8080/supervisionClients';
       
         const headers = new HttpHeaders()
-          .set('Content-Type', 'application/json')
-        //   .set('Access-Control-Request-Headers', '*')
-        //   .set('Acess-Control-Allow-Origin', '*')
-          .set('api-key', 'IutZ4iujBFUYwor2OXKlohvuisWQ9W9hpxp7SYREtmupK0UQ6Rj1ICbnLieT5ivB');
+          .set('Content-Type', 'application/json');
       
         return this.http.get(url, { headers }).pipe(
           catchError(error => {

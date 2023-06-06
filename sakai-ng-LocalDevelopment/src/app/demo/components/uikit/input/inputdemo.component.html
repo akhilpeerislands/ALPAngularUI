@@ -26,7 +26,7 @@
 						<div class="field">
 							<h6>Start Time</h6>
 						<p-calendar [timeOnly]="true" hourFormat = "12" [(ngModel)]="selectedPopUpStartTime" (onSelect)="compareTwoTimesM();checkPopupValidations()" placeholder="hh:mm">
-							<ng-template class="align-self-center" pTemplate="footer">Choose local time</ng-template>
+							<!-- <ng-template class="align-self-center" pTemplate="footer">Choose local time</ng-template> -->
 						</p-calendar>
 					</div>
 					</div>
@@ -34,7 +34,7 @@
 						<div class="field">
 							<h6>End Time</h6>
 						<p-calendar [timeOnly]="true"  hourFormat = "12" [(ngModel)]="selectedPopUpEndTime" (onSelect)="compareTwoTimesM();checkPopupValidations()" placeholder="hh:mm">
-							<ng-template pTemplate="footer">Choose local time</ng-template>
+							<!-- <ng-template pTemplate="footer">Choose local time</ng-template> -->
 						</p-calendar>
 					</div>
 					</div>
@@ -50,9 +50,8 @@
 					<div class="field col-12 mb-2 lg:col-12 lg:mb-0">
 						<p-dropdown [options]="supervisionClients" [(ngModel)]="selectedPopUpAppointmentWith" placeholder={{selectedPopUpAppointmentWith.label}} [filter]="true" filterBy="label" (onSelect)= "checkPopupValidations()" [showClear]="true"></p-dropdown>
 					</div>	
-				</div>
-	
-				
+				</div>	
+						
 				<br>
 				<div class="formgroup-inline">
 					<button pButton label="Update" disabled="disableUpdate" (click)="updateMeeting()"></button>
@@ -80,7 +79,6 @@
 					<div class="field">
 						<h6>Start Time</h6>
 					<p-calendar [timeOnly]="true" hourFormat = "12" [(ngModel)]="startTime" (onSelect)="compareTwoTimesM();checkValidations()" placeholder="hh:mm">
-						<ng-template class="align-self-center" pTemplate="footer">Choose local time</ng-template>
 					</p-calendar>
 				</div>
 				</div>
@@ -88,7 +86,6 @@
 					<div class="field">
 						<h6>End Time</h6>
 					<p-calendar [timeOnly]="true"  hourFormat = "12" [(ngModel)]="endTime" (onSelect)="compareTwoTimesM();checkValidations()" placeholder="hh:mm">
-						<ng-template pTemplate="footer">Choose local time</ng-template>
 					</p-calendar>
 				</div>
 				</div>
@@ -100,11 +97,27 @@
 				</div>
 			</div>
 			<h5>Appointment With</h5>
-			<div class="grid formgrid">
+			
+			<div *ngIf="!selectedMeeting || (selectedMeeting && selectedMeeting.name != 'Clinic Team meeting')" class="grid formgrid">
 				<div class="field col-12 mb-2 lg:col-12 lg:mb-0">
-					<p-dropdown [options]="supervisionClients" [(ngModel)]="selectedClient" placeholder="Choose Supervision Client" [filter]="true" filterBy="label" [showClear]="true"></p-dropdown>
+					<p-dropdown [options]="supervisionClients" [(ngModel)]="selectedClient" placeholder="Choose Supervision Client" [filter]="true" filterBy="label" [showClear]="true" (onChange)="onClientChange()"></p-dropdown>
 				</div>	
 			</div>
+			<div *ngIf="selectedMeeting && selectedMeeting.name == 'Clinic Team meeting'" class="grid formgrid "> <!-- Add align-items-center class -->
+				<div class="col-12 mb-2 lg:col-9 lg:mb-0">
+				  <input type="text" pInputText placeholder="Enter Client ID" [(ngModel)] = "clientIdEntered">
+				</div>
+				<div class="col-12 mb-2 lg:col-3 lg:mb-0 align-items-end">
+					<p-button label="Validate" (onClick)="getClient(clientIdEntered)" [disabled]="!clientIdEntered"></p-button>
+				</div>
+			</div>
+			<div class="flex align-items-center justify-content-between mb-5 gap-5">
+				<div class="flex align-items-center">
+					<label for="rememberme1"></label>
+				</div>				
+				<a class="font-semibold  text-right">{{selectedClientSupervisionTypeOrClientName}}</a>
+			</div>
+			
 
 			<h5>Select BT</h5>
 			<p-multiSelect [options]="BTs" [(ngModel)]="selectedMultiBT" placeholder="Select a BT" optionLabel="btName" class="multiselect-custom" display="chip">
@@ -119,7 +132,6 @@
 			<div class="formgroup-inline">
 				<button pButton label="Schedule" (click)="saveMeeting()" [disabled]="disableSubmit"></button>
 			</div>
-
 		</div>
 	</div>
 	<div class="col-12 md:col-6">
@@ -135,7 +147,6 @@
                         </span>	
 					</div>
 				</ng-template>
-
 				
 				<ng-template let-product pTemplate="gridItem">
 					<div class="col-12">
@@ -163,7 +174,5 @@
 				</ng-template>
 			</p-dataView>
 		</div>
-	</div>
-
-	
+	</div>	
 </div>
