@@ -4,7 +4,6 @@ import { CountryService } from 'src/app/demo/service/country.service';
 import { Appointment, Product } from 'src/app/demo/api/product';
 import { ProductService } from 'src/app/demo/service/product.service';
 import { DataView } from 'primeng/dataview';
-import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
     templateUrl: './newHireScheduler.component.html'

@@ -9,7 +9,7 @@ import { RouterModule } from '@angular/router';
         { path: 'floatlabel', data: { breadcrumb: 'Float Label' }, loadChildren: () => import('./floatlabel/floatlabeldemo.module').then(m => m.FloatlabelDemoModule) },
         { path: 'formlayout', data: { breadcrumb: 'Form Layout' }, loadChildren: () => import('./formlayout/formlayoutdemo.module').then(m => m.FormLayoutDemoModule) },
         { path: 'input', data: { breadcrumb: 'Input' }, loadChildren: () => import('./input/inputdemo.module').then(m => m.InputDemoModule) },
-        { path: 'newHireScheduler', data: { breadcrumb: 'Input' }, loadChildren: () => import('./newHireScheduler/newHireScheduler.module').then(m => m.NewHireSchedulerModule) },
+        { path: 'newHireScheduler', data: { breadcrumb: 'NewHireScheduler' }, loadChildren: () => import('./newHireScheduler/newHireScheduler.module').then(m => m.NewHireSchedulerModule) },
         { path: 'invalidstate', data: { breadcrumb: 'Invalid State' }, loadChildren: () => import('./invalid/invalidstatedemo.module').then(m => m.InvalidStateDemoModule) },
         { path: 'list', data: { breadcrumb: 'List' }, loadChildren: () => import('./list/listdemo.module').then(m => m.ListDemoModule) },
         { path: 'media', data: { breadcrumb: 'Media' }, loadChildren: () => import('./media/mediademo.module').then(m => m.MediaDemoModule) },
