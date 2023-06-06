@@ -7,9 +7,9 @@ import { DataView } from 'primeng/dataview';
 import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
-    templateUrl: './inputdemo.component.html'
+    templateUrl: './newHireScheduler.component.html'
 })
-export class InputDemoComponent implements OnInit, OnChanges {
+export class NewHireSchedulerComponent implements OnInit, OnChanges {
     
     countries: any[] = [];
 
