@@ -139,7 +139,28 @@ export class InputDemoComponent implements OnInit, OnChanges {
     }
 
     setInstructions(){
-      this.instructions = this.productService.getInstructions(this.selectedMeeting);
+      let allInstructions = this.productService.getInstructions();
+      if(this.selectedMeeting && this.selectedMeeting.name)
+      {
+        this.instructions = allInstructions.filter((inst) => inst.meetingName == this.selectedMeeting.name)[0];
+      }
+      else
+      {
+        this.instructions = allInstructions[0];
+      }
+    }
+
+    openInstructions(){
+      if(!this.selectedMeeting)
+      {
+        this.messageService.add({ severity: 'info', summary: 'Choose Meeting', detail: 'Please choose a meeting to get Instructions' });
+        return;
+      }
+      else
+      {
+        this.setInstructions();
+        this.displayInstructions = true;
+      }
     }
 
     showPopUp(meeting: any)
@@ -202,6 +223,11 @@ export class InputDemoComponent implements OnInit, OnChanges {
     getMeetings(){
       this.productService.getAllMeetings().subscribe(data => {
         console.log(data);
+        data.sort(function(a: any, b: any) {
+          var c = new Date(a.updatedDate).getTime();
+          var d = new Date(b.updatedDate).getTime();
+          return d-c;
+        });        
         this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
         }, error => {
         console.error(error);
@@ -213,8 +239,10 @@ export class InputDemoComponent implements OnInit, OnChanges {
         console.log(data);
         this.getMeetings();
         this.display = false;
+        this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Deleted Successfully' });
         }, error => {
         console.error(error);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error Occurred' });
         });
     }
 
@@ -407,13 +435,17 @@ export class InputDemoComponent implements OnInit, OnChanges {
             "supervisorName": element.supervisorName,
             "supervisorCRID": element.supervisorCRID,
             "supervisorEmail": element.supervisorEmailAddress,
+            "createdDate": new Date(),
+            "updatedDate": new Date(),
             "recordedToBot": "False"});
             });
         console.log("selectedMultiBT", this.selectedMultiBT, "Meets", meets,this.selectedMultiBT);
         this.productService.scheduleMeeting(meets).subscribe(data => {
             console.log(data);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Meeting/s scheduled successfully' });
             this.refreshScreen();
           }, error => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error Occurred' });
             console.error(error);
           }); 
     }
@@ -453,14 +485,17 @@ export class InputDemoComponent implements OnInit, OnChanges {
             endTime: formattedEndTime,
             appointmentWith: this.selectedPopUpAppointmentWith.name,
             appointmentWithCRID: this.selectedPopUpAppointmentWith.crId,
-            date: formattedDate
+            date: formattedDate,
+            updatedDate: new Date()
         };
         
         this.productService.updateMeeting(update, this.displayPopupMeeting._id).subscribe(data => {
             console.log(data);
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Meeting Updated successfully' });
             this.getMeetings();
             this.display = false;
           }, error => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error Occurred' });
             console.error(error);
           });
     }
@@ -548,7 +583,6 @@ export class InputDemoComponent implements OnInit, OnChanges {
           message: 'Are you sure that you want to delete this Meeting?',
           icon: 'pi pi-exclamation-triangle',
           accept: () => {
-              this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Delete Request Sent' });
               this.deleteMeeting(this.displayPopupMeeting._id);
           },
           reject: () => {

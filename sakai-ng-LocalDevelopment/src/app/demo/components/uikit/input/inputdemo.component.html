@@ -1,4 +1,5 @@
 <div class="grid p-fluid">
+	<p-toast></p-toast>
 	<p-dialog header="Scheduled Information" [(visible)]="display" [modal]="true" showEffect="fade" [style]="{width: '50vw'}" [breakpoints]="{'960px': '80vw'}">
 		<div class="col-12 md:col-12">
 			<h5>Choosen BT</h5> 
@@ -57,7 +58,6 @@
 					<div class="col-12 mb-2 lg:col-1 lg:mb-0 align-items-end">
 						<button type="text"  (click)="display = false" pButton icon="pi pi-times" label="" class="p-button-danger"></button>
 					</div>
-					<p-toast></p-toast>
 					<!-- <button (click)="confirm2($event)" pButton icon="pi pi-check" label="Confirm"></button> -->
 					<div class="col-12 mb-2 lg:col-1 lg:mb-0 align-items-end">
 						<button type="text" (click)="confirm2($event)" pButton icon="pi pi-trash" label="" class="p-button-danger"></button>
@@ -84,7 +84,7 @@
 					<p-dropdown [options]="masterMeetings"  [(ngModel)]="selectedMeeting" (onChange) = "onMeetingsChanged()" placeholder="Choose a Meeting" [showClear]="true" ></p-dropdown>
 				</div>	
 				<div class=" field col-12 mb-2 lg:col-4 lg:mb-0 ">
-					<button pButton pRipple type="button" label="Instructions" (click)="displayInstructions = true" ></button>
+					<button pButton pRipple type="button" label="Instructions" (click)="this.openInstructions();" ></button>
 				</div>
 			</div>
 			<app-instructions-popup [display]="displayInstructions" [instructions]="instructions" (close) ="displayInstructions = false"></app-instructions-popup>

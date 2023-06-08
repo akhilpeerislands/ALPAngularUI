@@ -2,7 +2,7 @@
 <div class="card mb-3">
     <div>
         <h2>{{instructions.title}}</h2>
-        <h4>To set up this meeting, please follow the instructions detailed below:</h4>
+        <h4>{{instructions.description}}</h4>
         <div *ngFor="let step of instructions.steps;index as i;">
             <br *ngIf = "i != 0">
             <h5>Step {{i+1}}</h5>
