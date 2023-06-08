@@ -1,5 +1,6 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { SelectItem } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { Appointment, Product } from 'src/app/demo/api/product';
 import { ProductService } from 'src/app/demo/service/product.service';
@@ -7,7 +8,8 @@ import { DataView } from 'primeng/dataview';
 import { FormGroup, FormControl, Validators } from '@angular/forms'
 
 @Component({
-    templateUrl: './inputdemo.component.html'
+    templateUrl: './inputdemo.component.html',
+    providers: [ConfirmationService, MessageService]
 })
 export class InputDemoComponent implements OnInit, OnChanges {
     
@@ -32,6 +34,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
     selectedMeeting: SelectItem = { value: '' };
 
     selectedAppointmentType: SelectItem = { value: '' };
+
+    allBTs: any[] = [];
 
     BTs: any[] = [];
 
@@ -85,6 +89,8 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     display = false;
 
+    displayInstructions = false;
+
     displayPopupMeeting: any;
 
     selectedPopUpBT: any;
@@ -104,9 +110,16 @@ export class InputDemoComponent implements OnInit, OnChanges {
     selectedPopUpAppointmentWith: SelectItem = { value: '' };
 
     allSupervisionClients: any;
-  clients: any;
+
+    clients: any;
+
+    podMeetsScheduled: any;
+  
+    selectedPopUpAppointmentWithLabel: any;
+
+    instructions: any;
     
-    constructor(private countryService: CountryService, private productService: ProductService) { }
+    constructor(private countryService: CountryService, private productService: ProductService, private confirmationService: ConfirmationService, private messageService: MessageService) { }
 
     ngOnInit() {
 
@@ -118,12 +131,15 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
         this.getBTs();
 
-        //this.getAllClients();
+        this.setInstructions();
+
     }
     
     ngOnChanges() {
-        this.checkValidations();
-        console.log("Changes Here");
+    }
+
+    setInstructions(){
+      this.instructions = this.productService.getInstructions(this.selectedMeeting);
     }
 
     showPopUp(meeting: any)
@@ -135,6 +151,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
         this.selectedPopUpStartTime = this.displayPopupMeeting.startTime;
         this.selectedPopUpEndTime = this.displayPopupMeeting.endTime;
         this.selectedPopUpDate = this.displayPopupMeeting.date;
+        this.selectedPopUpAppointmentWithLabel = this.displayPopupMeeting.appointmentWith;
         this.selectedPopUpAppointmentWith = {
             label: this.displayPopupMeeting.appointmentWith,
             value: { name: this.displayPopupMeeting.appointmentWith}
@@ -176,20 +193,31 @@ export class InputDemoComponent implements OnInit, OnChanges {
           });
     }
     convertMasterMeetingsResponse(response: any[]): any {
-        return response.map((meeting, index) => ({
-            label: meeting.name,
-            value: { id: meeting.id, name: meeting.name, code: meeting._id }
-        }));
-      }
+      return response.map((meeting, index) => ({
+          label: meeting.name,
+          value: { id: meeting.id, name: meeting.name, code: meeting._id }
+      }));
+    }
 
     getMeetings(){
-        this.productService.getAllMeetings().subscribe(data => {
-          console.log(data);
-          this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
-          }, error => {
-          console.error(error);
-          });
+      this.productService.getAllMeetings().subscribe(data => {
+        console.log(data);
+        this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
+        }, error => {
+        console.error(error);
+        });
     }
+
+    deleteMeeting(record: any){
+      this.productService.deleteMeeting(record).subscribe(data => {
+        console.log(data);
+        this.getMeetings();
+        this.display = false;
+        }, error => {
+        console.error(error);
+        });
+    }
+
     getAllClients(){
       this.productService.getAllClients().subscribe(data => {
         console.log(data);
@@ -215,23 +243,23 @@ export class InputDemoComponent implements OnInit, OnChanges {
     }
     convertScheduledMeetingsResponse(response: any[]): any {
         return response.map((meeting, index) => (
-            {
-                _id: meeting._id,
-                Title: meeting.Title,
-                appointmentType: meeting.appointmentType,
-                appointmentWith: meeting.appointmentWith,
-                apointmentWithCRID: meeting.crId,
-                btName: meeting.btName,
-                btCRID: meeting.btCRID,
-                timezone: meeting.timezone,
-                date: meeting.date,
-                startTime: meeting.startTime,
-                endTime: meeting.endTime,
-                supervisorName: meeting.supervisorName,
-                supervisorCRID: meeting.supervisorCRID,
-                supervisorEmail: meeting.supervisorEmail,
-                recordedToBot: meeting.recordedToBot
-              }
+          {
+            _id: meeting._id,
+            Title: meeting.Title,
+            appointmentType: meeting.appointmentType,
+            appointmentWith: meeting.appointmentWith,
+            apointmentWithCRID: meeting.crId,
+            btName: meeting.btName,
+            btCRID: meeting.btCRID,
+            timezone: meeting.timezone,
+            date: meeting.date,
+            startTime: meeting.startTime,
+            endTime: meeting.endTime,
+            supervisorName: meeting.supervisorName,
+            supervisorCRID: meeting.supervisorCRID,
+            supervisorEmail: meeting.supervisorEmail,
+            recordedToBot: meeting.recordedToBot
+          }
         ));
       }
 
@@ -239,6 +267,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
         this.productService.getAllBTs(this.supervisor).subscribe(data => {
             console.log(data);
             this.BTs = data;
+            this.allBTs = data;
             //this.convertBTResponse(data);
           }, error => {
             console.error(error);
@@ -254,7 +283,9 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     filterBTs(){
       this.selectedMultiBT = [];
-      if(this.selectedMeeting.name == this.podMeeting)
+      this.BTs = this.allBTs;
+      this.podMeetsScheduled = false;
+      if(this.selectedMeeting && this.selectedMeeting.name == this.podMeeting)
       {
         if(this.selectedDate >= this.getFirstDayOfCurrentMonth() && this.selectedDate <= this.getLastDayOfCurrentMonth())
         {
@@ -278,11 +309,14 @@ export class InputDemoComponent implements OnInit, OnChanges {
             return !scheduled;
           });
         }
+        this.BTs = this.selectedMultiBT;
+        this.podMeetsScheduled = this.selectedMultiBT.length == 0;
       }
       else
       {
         this.selectedMultiBT = [];
       }
+      
     }
     onMeetingsChanged(){
       this.selectedClient = { value: '' };
@@ -293,7 +327,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
       let PMsupervisionClient = "PM Supervision Client";
       let selectedSupervisionTypes: string[] = [];
       let BASupervisionMeetingCategory = ["Monthly POD meeting", "Annual Review", "Individual BT Meeting RBT Supervision", "Group RBT Supervision"];
-      if(BASupervisionMeetingCategory.includes(this.selectedMeeting.name??""))
+      if(BASupervisionMeetingCategory.includes(this.selectedMeeting.name?? ""))
       {
         selectedSupervisionTypes.push(BAsupervisionClient);
       }
@@ -507,4 +541,19 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
       return firstDayOfNextMonth;
     }
+    confirm2(event: Event) {
+      this.confirmationService.confirm({
+          key: 'confirm2',
+          target: event.target || new EventTarget,
+          message: 'Are you sure that you want to delete this Meeting?',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+              this.messageService.add({ severity: 'success', summary: 'Confirmed', detail: 'Delete Request Sent' });
+              this.deleteMeeting(this.displayPopupMeeting._id);
+          },
+          reject: () => {
+              // this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
+          }
+      });
+  }
 }

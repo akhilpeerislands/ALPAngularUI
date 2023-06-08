@@ -30,6 +30,10 @@ import { PickListModule } from 'primeng/picklist';
 import { OrderListModule } from 'primeng/orderlist';
 import { MessageModule } from 'primeng/message';
 import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmPopupModule } from 'primeng/confirmpopup';
+import { ToastModule } from 'primeng/toast';
+import { InstructionsPopupComponent } from './instructionsPopup/instructionsPopup.component';
 
 @NgModule({
 	imports: [
@@ -64,8 +68,11 @@ import { DialogModule } from 'primeng/dialog';
 		PickListModule,
 		OrderListModule,
 		MessageModule,
-		DialogModule
+		DialogModule,
+		ConfirmDialogModule,
+		ConfirmPopupModule,
+		ToastModule
 	],
-	declarations: [InputDemoComponent]
+	declarations: [InputDemoComponent, InstructionsPopupComponent]
 })
 export class InputDemoModule { }

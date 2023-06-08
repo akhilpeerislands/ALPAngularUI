@@ -30,6 +30,8 @@ import { PickListModule } from 'primeng/picklist';
 import { OrderListModule } from 'primeng/orderlist';
 import { MessageModule } from 'primeng/message';
 import { DialogModule } from 'primeng/dialog';
+import { FileUploadModule } from 'primeng/fileupload';
+
 
 @NgModule({
 	imports: [
@@ -64,7 +66,8 @@ import { DialogModule } from 'primeng/dialog';
 		PickListModule,
 		OrderListModule,
 		MessageModule,
-		DialogModule
+		DialogModule,
+		FileUploadModule
 	],
 	declarations: [NewHireSchedulerComponent]
 })

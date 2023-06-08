@@ -31,6 +31,18 @@ export class ProductService {
           })
         );
       }
+
+      deleteMeeting(id: any): Observable<any> {
+        const url = 'http://localhost:8080/deleteMeeting/'+ id;
+        const headers = new HttpHeaders();
+        return this.http.get(url, { headers }).pipe(
+          catchError(error => {
+            console.error(error);
+            return throwError(error);
+          })
+        );
+      }
+
       getAllClients(): Observable<any> {
         const url = 'http://localhost:8080/getAllClients';
       
@@ -161,5 +173,19 @@ export class ProductService {
             .toPromise()
             .then(res => res.data as Product[])
             .then(data => data);
+    }
+
+    getInstructions(meetingName: any) {
+      let data = {
+        "title": "Scheduling the Monthly POD Meeting",
+        "steps": ["Verify the accuracy of the list of BTs displayed in the box on the right. Ensure that the BTs assigned to you are correctly shown.", 
+        "If you need to exclude someone, simply \"Deselect\" their respective check-box.",
+        "Select the future date on which you wish to schedule the Monthly POD meeting. Please note, the system only permits scheduling for future dates, ideally for the following month.",
+        "Set the meeting's Start time and End time according to your time zone. The system will automatically identify and adapt to the time zone of each respective BT.",
+        "Select BCBA’s name that is hosting the meeting.  You can find the desired name by typing their first or last name into the drop-down search box.",
+        "Finally, click on the \"Schedule Now\" button, and the process is complete. Happy scheduling! 😊"
+      ]
+      }
+      return data
     }
 }
