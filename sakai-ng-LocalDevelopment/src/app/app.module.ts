@@ -14,7 +14,6 @@ import { PhotoService } from './demo/service/photo.service';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
 
-
 @NgModule({
     declarations: [
         AppComponent, NotfoundComponent

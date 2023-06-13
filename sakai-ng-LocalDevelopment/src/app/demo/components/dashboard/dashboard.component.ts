@@ -1,13 +1,17 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, Pipe } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Product } from '../../api/product';
 import { ProductService } from '../../service/product.service';
 import { Subscription } from 'rxjs';
 import { LayoutService } from 'src/app/layout/service/app.layout.service';
+import { SessionService } from '../../service/session.service';
+import { Router } from '@angular/router';
 
 @Component({
     templateUrl: './dashboard.component.html',
+    providers : [SessionService]
 })
+
 export class DashboardComponent implements OnInit, OnDestroy {
 
     items!: MenuItem[];
@@ -20,21 +24,92 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
     subscription!: Subscription;
 
-    constructor(private productService: ProductService, public layoutService: LayoutService) {
+    supervisor: any;
+
+    allMeetings: any;
+
+    meetingCount: any = 0; 
+
+    todayMeetingCount: any = 0;
+    supervisorName: any;
+    percentageMeeting: any;
+
+    bts: any;
+
+    constructor(private productService: ProductService, 
+        public layoutService: LayoutService,
+        private sessionService: SessionService,
+        private router: Router) {
         this.subscription = this.layoutService.configUpdate$.subscribe(() => {
             this.initChart();
         });
     }
 
     ngOnInit() {
-        this.initChart();
-        this.productService.getProductsSmall().then(data => this.products = data);
+        this.initiateWithSupervisor();
+        // this.productService.getProductsSmall().then(data => this.products = data);
 
         this.items = [
             { label: 'Add New', icon: 'pi pi-fw pi-plus' },
             { label: 'Remove', icon: 'pi pi-fw pi-minus' }
         ];
     }
+
+    isNewMeeting(event: any)
+    {
+      const date = new Date(event.updatedDate);
+      var firstDateToday = new Date();
+      firstDateToday.setHours(0,0,0,0);
+      return date > firstDateToday;
+    }
+
+    initiateWithSupervisor(){
+        this.supervisor = this.getValueFromSession("supervisor");
+        this.supervisorName = this.getValueFromSession("supervisorName");
+        if(!this.supervisor)
+          {
+            this.router.navigate(['/auth/login']);
+            return;
+          }
+        this.getMeetings();
+        this.getBTs();
+      }
+      
+      getMeetings(){
+        this.productService.getAllMeetings(this.supervisor).subscribe(data => {
+          console.log(data);
+          this.meetingCount = data.length;
+          this.allMeetings = data;
+          data.sort(function(a: any, b: any) {
+            var c = new Date(a.updatedDate).getTime();
+            var d = new Date(b.updatedDate).getTime();
+            return d-c;
+          });  
+          let todayMeetingCount = data.filter((meeting: any) => this.isNewMeeting(meeting));
+          this.todayMeetingCount = todayMeetingCount.length;
+          this.percentageMeeting = Math.round(this.todayMeetingCount/this.meetingCount * 100);
+        //   this.scheduledMeetings = this.convertScheduledMeetingsResponse(data);
+          }, error => {
+          console.error(error);
+          });
+      }
+
+      getBTs(){
+        this.productService.getAllBTs(this.supervisor).subscribe({
+            next: (data) => {
+                console.log(data);
+                this.bts = data;
+            },
+            error: (error) => {
+                console.error(error);
+            }
+            });
+        }
+      getValueFromSession(key: any) {
+        const value = this.sessionService.getValue(key);
+        console.log(value);
+        return value;
+      }
 
     initChart() {
         const documentStyle = getComputedStyle(document.documentElement);

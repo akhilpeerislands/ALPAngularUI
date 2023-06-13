@@ -19,8 +19,8 @@ export class ProductService {
 
     getSupervisor(): any { return this.supervisor; }
 
-    getAllMeetings(): Observable<any> {
-        const url = 'http://localhost:8080/getallmeets';
+    getAllMeetings(supervisor: any): Observable<any> {
+        const url = 'http://localhost:8080/getScheduledMeetings/'+ supervisor ;
       
         const headers = new HttpHeaders();
       
@@ -142,19 +142,19 @@ export class ProductService {
           })
         );
       }
-    getProductsSmall() {
-        return this.http.get<any>('assets/demo/data/products-small.json')
-            .toPromise()
-            .then(res => res.data as Product[])
-            .then(data => data);
-    }
+    // getProductsSmall() {
+    //     return this.http.get<any>('assets/demo/data/products-small.json')
+    //         .toPromise()
+    //         .then(res => res.data as Product[])
+    //         .then(data => data);
+    // }
 
-    getProducts() {
-        return this.http.get<any>('assets/demo/data/products.json')
-            .toPromise()
-            .then(res => res.data as Product[])
-            .then(data => data);
-    }
+    // getProducts() {
+    //     return this.http.get<any>('assets/demo/data/products.json')
+    //         .toPromise()
+    //         .then(res => res.data as Product[])
+    //         .then(data => data);
+    // }
     getMeets() {
         return this.http.get<any>('assets/demo/data/meets.json')
             .toPromise()

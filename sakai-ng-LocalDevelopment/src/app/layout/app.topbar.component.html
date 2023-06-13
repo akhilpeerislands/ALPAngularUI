@@ -13,17 +13,24 @@
     </button>
 
     <div #topbarmenu class="layout-topbar-menu" [ngClass]="{'layout-topbar-menu-mobile-active': layoutService.state.profileSidebarVisible}">
-        <button class="p-link layout-topbar-button">
-            <i class="pi pi-calendar"></i>
+        <button pTooltip="Home" tooltipPosition="bottom" class="p-link layout-topbar-button">
+            <i class="pi pi-home" [routerLink]="'/'"></i>
+            <span>Dashboard</span>
+        </button>
+        <button pTooltip="Navigate to Scheduler" tooltipPosition="bottom" class="p-link layout-topbar-button">
+            <i class="pi pi-calendar" [routerLink]="'uikit/input'"></i>
             <span>Calendar</span>
         </button>
-        <button class="p-link layout-topbar-button">
-            <i class="pi pi-user"></i>
-            <span>Profile</span>
+
+        <button type="text" pTooltip="Logout" tooltipPosition="bottom" (click)="confirm2($event)" 
+        pButton  label="" class="p-link layout-topbar-button">
+        <i class="pi pi-user"></i>
+        <span>Profile</span>
         </button>
-        <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
+        <p-confirmPopup key="confirm2"></p-confirmPopup>
+        <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
             <i class="pi pi-cog"></i>
             <span>Settings</span>
-        </button>
+        </button> -->
     </div>
 </div>

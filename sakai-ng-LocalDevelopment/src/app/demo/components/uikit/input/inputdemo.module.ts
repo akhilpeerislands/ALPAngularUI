@@ -34,11 +34,14 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { ToastModule } from 'primeng/toast';
 import { InstructionsPopupComponent } from './instructionsPopup/instructionsPopup.component';
-
+import { MessagesModule } from 'primeng/messages';
+import { TagModule } from 'primeng/tag';
 @NgModule({
 	imports: [
+		TagModule,
 		CommonModule,
 		FormsModule,
+		MessagesModule,
 		InputDemoRoutingModule,
 		AutoCompleteModule,
 		CalendarModule,

@@ -1,15 +1,16 @@
 import { Component, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { SelectItem } from 'primeng/api';
+import { Message, SelectItem } from 'primeng/api';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { CountryService } from 'src/app/demo/service/country.service';
 import { Appointment, Product } from 'src/app/demo/api/product';
 import { ProductService } from 'src/app/demo/service/product.service';
 import { DataView } from 'primeng/dataview';
-import { FormGroup, FormControl, Validators } from '@angular/forms'
+import { SessionService } from 'src/app/demo/service/session.service';
+import { Router } from '@angular/router';
 
 @Component({
     templateUrl: './inputdemo.component.html',
-    providers: [ConfirmationService, MessageService]
+    providers: [ConfirmationService, MessageService, SessionService]
 })
 export class InputDemoComponent implements OnInit, OnChanges {
     
@@ -103,7 +104,9 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     selectedPopUpDate: any;
 
-    supervisor = "ADelgado@autismlearningpartners.com";
+    supervisor: any;
+
+    supervisorName: any;
 
     podMeeting = "Monthly POD meeting";
     
@@ -119,23 +122,51 @@ export class InputDemoComponent implements OnInit, OnChanges {
 
     instructions: any;
     
-    constructor(private countryService: CountryService, private productService: ProductService, private confirmationService: ConfirmationService, private messageService: MessageService) { }
+    infoMessages: Message[] = [];
+
+  allMeetings: any;
+
+    constructor(private countryService: CountryService, 
+      private productService: ProductService, 
+      private confirmationService: ConfirmationService, 
+      private messageService: MessageService,
+      private sessionService: SessionService,
+      private router: Router) { }
 
     ngOnInit() {
-
-        this.getMeetings();
-
-        this.getMasterMeetings();
-
-        this.getSupervisors();
-
-        this.getBTs();
-
-        this.setInstructions();
-
+      this.initiateWithSupervisor();      
     }
     
     ngOnChanges() {
+    }
+
+    initiateWithSupervisor(){
+      this.supervisor = this.getValueFromSession("supervisor");
+      this.supervisorName = this.getValueFromSession("supervisorName");
+      if(!this.supervisor)
+        {
+          this.router.navigate(['/auth/login']);
+          return;
+        }
+        this.getMeetings();
+
+        this.getMasterMeetings();
+  
+        this.getSupervisors();
+  
+        this.getBTs();
+  
+        this.setInstructions();
+    }
+
+    setValueInSession(key: any, value: any) {
+      this.sessionService.setValue(key, value);
+    }
+
+    getValueFromSession(key: any) {
+      const value = this.sessionService.getValue(key);
+      console.log(value);
+      return value;
     }
 
     setInstructions(){
@@ -221,8 +252,9 @@ export class InputDemoComponent implements OnInit, OnChanges {
     }
 
     getMeetings(){
-      this.productService.getAllMeetings().subscribe(data => {
+      this.productService.getAllMeetings(this.supervisor).subscribe(data => {
         console.log(data);
+        this.allMeetings = data;
         data.sort(function(a: any, b: any) {
           var c = new Date(a.updatedDate).getTime();
           var d = new Date(b.updatedDate).getTime();
@@ -286,7 +318,9 @@ export class InputDemoComponent implements OnInit, OnChanges {
             supervisorName: meeting.supervisorName,
             supervisorCRID: meeting.supervisorCRID,
             supervisorEmail: meeting.supervisorEmail,
-            recordedToBot: meeting.recordedToBot
+            recordedToBot: meeting.recordedToBot,
+            updatedDate: meeting.updatedDate,
+            createdDate: meeting.createdDate
           }
         ));
       }
@@ -409,9 +443,15 @@ export class InputDemoComponent implements OnInit, OnChanges {
         }));
       }
 
+    isNewMeeting(event: any)
+    {
+      const date = new Date(event.updatedDate);
+      var firstDateToday = new Date();
+      firstDateToday.setHours(0,0,0,0);
+      return date > firstDateToday;
+    }
     saveMeeting()
     {
-        var meets: any = [];
         const date = new Date(this.selectedDate);
         const formattedDate = `${date.getMonth()+1}/${date.getDate()}/${date.getFullYear()}`;
       
@@ -421,33 +461,64 @@ export class InputDemoComponent implements OnInit, OnChanges {
         const endTime = new Date(this.endTime);
         const formattedEndTime = `${(endTime.getHours() % 12 || 12)}:${endTime.getMinutes().toString().padStart(2, '0')} ${endTime.getHours() >= 12 ? 'PM' : 'AM'}`;
       
+        const meetsToBeScheduled: { title: string; appointmentType: string | undefined; appointmentWith: string | undefined; appointmentWithCRID: string | undefined; btName: any; btCRID: any; timezone: any; date: string; startTime: string; endTime: string; supervisorName: any; supervisorCRID: any; supervisorEmail: any; createdDate: Date; updatedDate: Date; recordedToBot: string; }[] = [];
+        const meetsCannotBeScheduled: { title: string; appointmentType: string | undefined; appointmentWith: string | undefined; appointmentWithCRID: string | undefined; btName: any; btCRID: any; timezone: any; date: string; startTime: string; endTime: string; supervisorName: any; supervisorCRID: any; supervisorEmail: any; createdDate: Date; updatedDate: Date; recordedToBot: string; }[] = [];
+
         this.selectedMultiBT.forEach(element => {
-            meets.push({title: "Meeting",
-            "appointmentType": this.selectedMeeting.name,
-            "appointmentWith": this.selectedClient.name,
-            "appointmentWithCRID": this.selectedClient.crId,
-            "btName": element.btName,
-            "btCRID": element.crID,
-            "timezone": element.region,
-            "date": formattedDate,
-            "startTime": formattedStartTime,
-            "endTime": formattedEndTime,
-            "supervisorName": element.supervisorName,
-            "supervisorCRID": element.supervisorCRID,
-            "supervisorEmail": element.supervisorEmailAddress,
-            "createdDate": new Date(),
-            "updatedDate": new Date(),
-            "recordedToBot": "False"});
-            });
-        console.log("selectedMultiBT", this.selectedMultiBT, "Meets", meets,this.selectedMultiBT);
-        this.productService.scheduleMeeting(meets).subscribe(data => {
+          const newMeet = {
+            title: "Meeting",
+            appointmentType: this.selectedMeeting.name,
+            appointmentWith: this.selectedClient.name,
+            appointmentWithCRID: this.selectedClient.crId,
+            btName: element.btName,
+            btCRID: element.crID,
+            timezone: element.region,
+            date: formattedDate,
+            startTime: formattedStartTime,
+            endTime: formattedEndTime,
+            supervisorName: element.supervisorName,
+            supervisorCRID: element.supervisorCRID,
+            supervisorEmail: element.supervisorEmailAddress,
+            createdDate: new Date(),
+            updatedDate: new Date(),
+            recordedToBot: "False"
+          };
+
+          const isScheduled = this.allMeetings.some((scheduledMeet: { appointmentWithCRID: string | undefined; date: string; startTime: string; endTime: string; btName: any; }) => {
+            return (
+              scheduledMeet.appointmentWithCRID === newMeet.appointmentWithCRID &&
+              scheduledMeet.date === newMeet.date &&
+              scheduledMeet.startTime === newMeet.startTime &&
+              scheduledMeet.endTime === newMeet.endTime &&
+              scheduledMeet.btName === newMeet.btName
+            );
+          });
+
+          if (isScheduled) {
+            meetsCannotBeScheduled.push(newMeet);
+          } else {
+            meetsToBeScheduled.push(newMeet);
+          }
+        });
+        if(meetsToBeScheduled.length == 0){
+          this.messageService.add({ severity: 'info', summary: 'Duplicate', detail: 'The Chosen Meeting/s already scheduled, So Skipped' });
+          return;
+        }
+        this.productService.scheduleMeeting(meetsToBeScheduled).subscribe(data => {
             console.log(data);
             this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Meeting/s scheduled successfully' });
+            if(meetsCannotBeScheduled.length > 0){
+              this.messageService.add({ severity: 'info', summary: 'Duplicate', detail: 'Few Meeting/s already scheduled, So Skipped' });
+            }
             this.refreshScreen();
           }, error => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error Occurred' });
             console.error(error);
           }); 
+        this.infoMessages = [];
+        meetsCannotBeScheduled.forEach(meet => {
+          this.infoMessages.push({ severity: 'info', summary: 'Duplicate', detail: "BT Name: " +meet.btName + " Appointment With: " + meet.appointmentWith + " Date: "+ meet.date + " Start Time: " +meet.startTime + " End Time: "+ meet.endTime + " Is already scheduled" });
+        });
     }
     refreshScreen(){
       this.getMeetings();
