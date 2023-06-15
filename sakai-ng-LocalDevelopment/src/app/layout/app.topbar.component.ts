@@ -27,7 +27,7 @@ export class AppTopBarComponent {
         this.confirmationService.confirm({
             key: 'confirm2',
             target: event.target || new EventTarget,
-            message: 'Are you sure to Logout?',
+            message: 'Hey '+  this.sessionService.getValue("supervisorName") +', Are you sure to Logout?',
             icon: 'pi pi-exclamation-triangle',
             accept: () => {
                 this.setValueInSession("supervisor", "")
