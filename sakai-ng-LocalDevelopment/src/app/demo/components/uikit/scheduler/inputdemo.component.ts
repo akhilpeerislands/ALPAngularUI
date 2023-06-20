@@ -7,16 +7,22 @@ import { ProductService } from 'src/app/demo/service/product.service';
 import { DataView } from 'primeng/dataview';
 import { SessionService } from 'src/app/demo/service/session.service';
 import { Router } from '@angular/router';
+const GRAPH_ENDPOINT = 'https://graph.microsoft.com/v1.0/me';
+import { HttpClient } from '@angular/common/http';
 
+type ProfileType = {
+  givenName?: string,
+  surname?: string,
+  userPrincipalName?: string,
+  id?: string
+}
 @Component({
     templateUrl: './inputdemo.component.html',
     providers: [ConfirmationService, MessageService, SessionService]
 })
 export class InputDemoComponent implements OnInit, OnChanges {
     
-    countries: any[] = [];
-
-    filteredCountries: any[] = [];
+    profile!: ProfileType;
 
     selectedCountryAdvanced: any[] = [];
 
@@ -131,10 +137,12 @@ export class InputDemoComponent implements OnInit, OnChanges {
       private confirmationService: ConfirmationService, 
       private messageService: MessageService,
       private sessionService: SessionService,
-      private router: Router) { }
+      private router: Router,
+      private http: HttpClient) { }
 
     ngOnInit() {
-      this.initiateWithSupervisor();      
+      this.initiateWithSupervisor();     
+      this.getProfile(); 
     }
     
     ngOnChanges() {
@@ -157,8 +165,29 @@ export class InputDemoComponent implements OnInit, OnChanges {
         this.getBTs();
   
         this.setInstructions();
-    }
 
+        //this.testCall();
+    }
+    getProfile() {
+      this.http.get(GRAPH_ENDPOINT)
+        .subscribe(profile => {
+          this.profile = profile;
+        });
+    }
+    testCall()
+    {
+      this.productService.findTest().subscribe(data => {
+        console.log(data);
+        }, error => {
+        console.error(error);
+        });
+
+        this.productService.updateOne().subscribe(data => {
+          console.log(data);
+          }, error => {
+          console.error(error);
+          });
+    }
     setValueInSession(key: any, value: any) {
       this.sessionService.setValue(key, value);
     }
@@ -570,18 +599,7 @@ export class InputDemoComponent implements OnInit, OnChanges {
             console.error(error);
           });
     }
-    filterCountry(event: any) {
-        const filtered: any[] = [];
-        const query = event.query;
-        for (let i = 0; i < this.countries.length; i++) {
-            const country = this.countries[i];
-            if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
-                filtered.push(country);
-            }
-        }
 
-        this.filteredCountries = filtered;
-    }
     selectedState: any = null;
 
     compareTwoTimesM(){}

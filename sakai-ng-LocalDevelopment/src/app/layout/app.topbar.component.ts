@@ -3,6 +3,7 @@ import { ConfirmationService, MenuItem } from 'primeng/api';
 import { LayoutService } from "./service/app.layout.service";
 import { Router } from '@angular/router';
 import { SessionService } from '../demo/service/session.service';
+import { MsalService } from '@azure/msal-angular';
 
 @Component({
     selector: 'app-topbar',
@@ -21,7 +22,8 @@ export class AppTopBarComponent {
 
     constructor(public layoutService: LayoutService, private confirmationService: ConfirmationService,
         private router: Router,
-        private sessionService: SessionService) { }
+        private sessionService: SessionService,
+        private authService: MsalService,) { }
 
     confirm2(event: Event) {
         this.confirmationService.confirm({
@@ -32,7 +34,7 @@ export class AppTopBarComponent {
             accept: () => {
                 this.setValueInSession("supervisor", "")
                 this.setValueInSession("supervisorName", "")
-                this.router.navigate(['/auth/login']);
+                this.logout();
             },
             reject: () => {
                 // this.messageService.add({ severity: 'error', summary: 'Rejected', detail: 'You have rejected' });
@@ -43,4 +45,22 @@ export class AppTopBarComponent {
     setValueInSession(key: any, value: any) {
         this.sessionService.setValue(key, value);
         }
+
+        logout() {
+            // this.authService.logoutPopup({
+            //     postLogoutRedirectUri: "/",
+            //     mainWindowRedirectUri: "/"
+            //   });
+                this.authService.logoutRedirect({
+                postLogoutRedirectUri: "/",
+              }).subscribe((response) => {
+                this.router.navigate(['/auth/close']);
+              });
+            // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+            // } else {
+            //   this.authService.logoutRedirect({
+            //     postLogoutRedirectUri: "/",
+            //   });
+            // }
+          }
 }

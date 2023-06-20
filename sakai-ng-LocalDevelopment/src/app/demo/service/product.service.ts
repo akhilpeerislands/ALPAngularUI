@@ -19,6 +19,7 @@ export class ProductService {
 
     getSupervisor(): any { return this.supervisor; }
 
+ 
     getAllMeetings(supervisor: any): Observable<any> {
         const url = 'http://localhost:8080/getScheduledMeetings/'+ supervisor ;
       
@@ -270,4 +271,51 @@ export class ProductService {
         ]
       return data
     }
+
+    findTest() {
+      const url = 'https://us-east-1.aws.data.mongodb-api.com/app/data-qgwmr/endpoint/data/v1/action/find';
+      
+      const headers = new HttpHeaders({'Content-Type': 'application/json' , 
+      'api-key': 'L5OxGXo7vmWywyx6fSwXUOPznl91tqDSxH5ybJ9XMTK8Smk12CqhvNCbUP8LrfZl',
+      'Access-Control-Request-Headers': '*',
+      'Authorization': 'Bearer ' + 'L5OxGXo7vmWywyx6fSwXUOPznl91tqDSxH5ybJ9XMTK8Smk12CqhvNCbUP8LrfZl'})
+      const data = {
+        dataSource: 'Cluster0',
+        database: 'ALPDB',
+        collection: 'ALP_Meeting_Database',
+        filter: {}
+      };
+    
+      return this.http.post(url, data, { headers }).pipe(
+        catchError(error => {
+          console.error(error);
+          return throwError(error);
+        })
+      );
+    }    
+    
+    updateOne() {
+      const url = 'https://us-east-1.aws.data.mongodb-api.com/app/data-qgwmr/endpoint/data/v1/action/updateOne';
+    
+      const headers = new HttpHeaders();
+      headers.set('Content-Type', 'application/json');
+      headers.set('Access-Control-Request-Headers', '*');
+      headers.set('api-key', 'L5OxGXo7vmWywyx6fSwXUOPznl91tqDSxH5ybJ9XMTK8Smk12CqhvNCbUP8LrfZl');
+    
+      const data = {
+        dataSource: 'Cluster0',
+        database: 'ALPDB',
+        collection: 'ALP_Meeting_Database',
+        filter: { "_id": { "$oid": "64874db625e66ac2a4842b34" } },
+        update: { "$set": { "recordedToBot": "True" } }
+      };
+    
+      return this.http.post(url, data, { headers }).pipe(
+        catchError(error => {
+          console.error(error);
+          return throwError(error);
+        })
+      );
+    }
+
 }

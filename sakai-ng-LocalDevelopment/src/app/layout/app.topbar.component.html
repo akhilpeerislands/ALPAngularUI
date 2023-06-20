@@ -18,14 +18,14 @@
             <span>Dashboard</span>
         </button>
         <button pTooltip="Navigate to Scheduler" tooltipPosition="bottom" class="p-link layout-topbar-button">
-            <i class="pi pi-calendar" [routerLink]="'uikit/input'"></i>
-            <span>Calendar</span>
+            <i class="pi pi-calendar" [routerLink]="'uikit/scheduler'"></i>
+            <span>Scheduler</span>
         </button>
 
         <button type="text" pTooltip="Logout" tooltipPosition="bottom" (click)="confirm2($event)" 
         pButton  label="" class="p-link layout-topbar-button">
         <i class="pi pi-user"></i>
-        <span>Profile</span>
+        <span class="color: red">Logout</span>
         </button>
         <p-confirmPopup key="confirm2"></p-confirmPopup>
         <!-- <button class="p-link layout-topbar-button" [routerLink]="'/documentation'">
