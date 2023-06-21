@@ -2,17 +2,58 @@
     <div class="col-12">
         <div class="card">
             <h5>Upload Filled Template</h5>
-            <p-fileUpload name="demo[]" url="./upload.php" (onUpload)="onUpload($event)"
-                          [multiple]="false" accept=".xlsx,.pdf,.csv,.xls" [maxFileSize]="1000000">
-                <ng-template pTemplate="content">
+
+            <p-fileUpload name="demo[]" [customUpload]="true" (uploadHandler)="onFileChange($event);"
+                (onUpload)="onUpload($event);" [multiple]="false" accept=".xlsx,.pdf,.csv,.xls" [maxFileSize]="1000000">
+                <!-- <ng-template pTemplate="content">
                     <ul *ngIf="uploadedFiles.length">
                         <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
                     </ul>
-                </ng-template>
+                </ng-template> -->
             </p-fileUpload>
-
-            <h5>Basic</h5>
-            <p-fileUpload mode="basic" name="demo[]" url="./upload.php" accept="image/*" [maxFileSize]="1000000" (onUpload)="onBasicUpload()"></p-fileUpload>
         </div>
+        <button class="col-3" pButton label="Schedule" style="float: right; font-size: small;"
+            [disabled]="false"></button>
+
+    </div>
+
+    <div class="col-12">
+
+
+        <div class="card">
+
+            <p-table [value]="tableData" [tableStyle]="{ 'min-width': '50rem' }">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width:25%">Appointment Type</th>
+                        <th style="width:20%">BT Name</th>
+                        <th style="width:10%">Date</th>
+                        <th style="width:10%">Start Time</th>
+                        <th style="width:10%">End Time</th>
+                        <th style="width:20%">Supervisor Name</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-customer>
+                    <tr>
+                        <td>{{ customer["Appointment Type"] }}</td>
+                        <td>{{ customer["BT Name"] }}</td>
+                        <td>{{ customer["Date"] }}</td>
+                        <td>{{ formatTime(customer["Start Time"]) }}</td>
+                        <td>{{ formatTime(customer["End Time"]) }}</td>
+                        <td>{{ customer["Supervisor Name"] }}</td>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="paginatorleft">
+                    <p-button type="button" icon="pi pi-plus" styleClass="p-button-text"></p-button>
+                </ng-template>
+                <ng-template pTemplate="paginatorright">
+                    <p-button type="button" icon="pi pi-cloud" styleClass="p-button-text"></p-button>
+                </ng-template>
+
+            </p-table>
+        </div>
+
+
+
     </div>
 </div>

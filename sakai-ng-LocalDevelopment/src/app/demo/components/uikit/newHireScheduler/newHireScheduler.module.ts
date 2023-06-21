@@ -31,10 +31,12 @@ import { OrderListModule } from 'primeng/orderlist';
 import { MessageModule } from 'primeng/message';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
+import { TableModule } from 'primeng/table';
 
 
 @NgModule({
 	imports: [
+		TableModule,
 		CommonModule,
 		FormsModule,
 		NewHireSchedulerRoutingModule,

@@ -11,9 +11,9 @@ const request = {
   scopes: ['api://806604ac-b078-4e44-9bbb-f589a988904a/GeneralScope'] // Replace with the scopes you require
 };
 @Component({
-    selector: 'app-login',
-    templateUrl: './login.component.html',
-    styles: [`
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styles: [`
         :host ::ng-deep .pi-eye,
         :host ::ng-deep .pi-eye-slash {
             transform:scale(1.6);
@@ -21,29 +21,29 @@ const request = {
             color: var(--primary-color) !important;
         }
     `],
-    providers: [SessionService]
+  providers: [SessionService]
 })
 
 export class LoginComponent implements OnInit, OnDestroy {
 
-    valCheck: string[] = ['remember'];
+  valCheck: string[] = ['remember'];
 
-    password!: string;
+  password!: string;
 
-    email!: string;
+  email!: string;
 
-    message = '';
-    isIframe = false;
-    loginDisplay = false;
+  message = '';
+  isIframe = false;
+  loginDisplay = false;
 
-    
-    private readonly _destroying$ = new Subject<void>();
 
-    constructor(public layoutService: LayoutService, private productService: ProductService, private router: Router,
-        private sessionService: SessionService,
-        @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
-        private authService: MsalService,
-        private msalBroadcastService: MsalBroadcastService) { }
+  private readonly _destroying$ = new Subject<void>();
+
+  constructor(public layoutService: LayoutService, private productService: ProductService, private router: Router,
+    private sessionService: SessionService,
+    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
+    private authService: MsalService,
+    private msalBroadcastService: MsalBroadcastService) { }
 
 
   ngOnInit(): void {
@@ -58,97 +58,97 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.setLoginDisplay();
       });
   }
-    setValueInSession(key: any, value: any) {
-        this.sessionService.setValue(key, value);
-    }
+  setValueInSession(key: any, value: any) {
+    this.sessionService.setValue(key, value);
+  }
 
-    // login(){
-    //     this.productService.loginSupervisor(this.email).subscribe(data => {
-    //         if(data && data.length > 0)
-    //         {
-    //             console.log(data);
-    //             this.setValueInSession("supervisor", data[0].supervisorEmailAddress)
-    //             this.setValueInSession("supervisorName", data[0].supervisorName)
-    //             this.router.navigate(['/uikit/scheduler']);
-    //         }
-    //         else
-    //         {
-    //             this.message = 'Invalid email/supervisor not available in database'
-    //         }
-    //       }, error => {
-    //         console.error(error);
+  // login(){
+  //     this.productService.loginSupervisor(this.email).subscribe(data => {
+  //         if(data && data.length > 0)
+  //         {
+  //             console.log(data);
+  //             this.setValueInSession("supervisor", data[0].supervisorEmailAddress)
+  //             this.setValueInSession("supervisorName", data[0].supervisorName)
+  //             this.router.navigate(['/uikit/scheduler']);
+  //         }
+  //         else
+  //         {
+  //             this.message = 'Invalid email/supervisor not available in database'
+  //         }
+  //       }, error => {
+  //         console.error(error);
 
-    //       });    
-    // }
-    setLoginDisplay() {
-        this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
-      }
-    
-      login() {
-        if (this.msalGuardConfig.authRequest) {
-            this.authService.loginPopup({ ...this.msalGuardConfig.authRequest } as PopupRequest)
-              .subscribe((response: AuthenticationResult) => {
-                this.authService.instance.setActiveAccount(response.account);
-                this.setValueInSession("supervisor", response.account?.username)
-                this.setValueInSession("supervisorName", response.account?.name)
-                this.router.navigate(['/uikit/scheduler']);
-                this.authService.acquireTokenSilent(request).subscribe((result) => {
-                  const accessToken = response.accessToken;
-                  console.log("accessToken: " + accessToken);
-                  this.setValueInSession("accessToken", accessToken);
-                });
-                this.initiateLoginIfCached();
-              });
-          } else {
-            this.authService.loginPopup()
-              .subscribe((response: AuthenticationResult) => {
-                this.authService.instance.setActiveAccount(response.account);
-                this.setValueInSession("supervisor", response.account?.username)
-                this.setValueInSession("supervisorName", response.account?.name)
-                this.router.navigate(['/uikit/scheduler']);
-              });
-          }
-        // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
-          
-        // } else {
-        //   if (this.msalGuardConfig.authRequest) {
-        //     this.authService.loginRedirect({ ...this.msalGuardConfig.authRequest } as RedirectRequest);
-        //   } else {
-        //     this.authService.loginRedirect();
-        //   }
-        // }
-      }
-    
-      initiateLoginIfCached = () => {
-        let loginRequest = {
-            scopes: ["user.read"] // optional Array<string>
-        };
-        this.authService.acquireTokenSilent(loginRequest)
-            .subscribe(res => {
-                this.setValueInSession("token",res.idToken);
-            });
-            
-    }
+  //       });    
+  // }
+  setLoginDisplay() {
+    this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
+  }
 
-      logout() {
-        this.authService.logout().subscribe((res) => 
-        {
-            this.router.navigate(['/auth/close']);
+  login() {
+    if (this.msalGuardConfig.authRequest) {
+      this.authService.loginPopup({ ...this.msalGuardConfig.authRequest } as PopupRequest)
+        .subscribe((response: AuthenticationResult) => {
+          this.authService.instance.setActiveAccount(response.account);
+          console.log(response);
+          this.setValueInSession("supervisor", response.account?.username)
+          this.setValueInSession("supervisorName", response.account?.name)
+          this.router.navigate(['/uikit/scheduler']);
+          this.authService.acquireTokenSilent(request).subscribe((result) => {
+            const accessToken = response.accessToken;
+            console.log("accessToken: " + accessToken);
+            this.setValueInSession("accessToken", accessToken);
+          });
+          this.initiateLoginIfCached();
         });
-        // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
-        //   this.authService.logoutPopup({
-        //     postLogoutRedirectUri: "/",
-        //     mainWindowRedirectUri: "/"
-        //   });
-        // } else {
-        //   this.authService.logoutRedirect({
-        //     postLogoutRedirectUri: "/",
-        //   });
-        // }
-      }
-    
-      ngOnDestroy(): void {
-        this._destroying$.next(undefined);
-        this._destroying$.complete();
-      }
+    } else {
+      this.authService.loginPopup()
+        .subscribe((response: AuthenticationResult) => {
+          this.authService.instance.setActiveAccount(response.account);
+          this.setValueInSession("supervisor", response.account?.username)
+          this.setValueInSession("supervisorName", response.account?.name)
+          this.router.navigate(['/uikit/scheduler']);
+        });
+    }
+    // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+
+    // } else {
+    //   if (this.msalGuardConfig.authRequest) {
+    //     this.authService.loginRedirect({ ...this.msalGuardConfig.authRequest } as RedirectRequest);
+    //   } else {
+    //     this.authService.loginRedirect();
+    //   }
+    // }
+  }
+
+  initiateLoginIfCached = () => {
+    let loginRequest = {
+      scopes: ["user.read"] // optional Array<string>
+    };
+    this.authService.acquireTokenSilent(loginRequest)
+      .subscribe(res => {
+        this.setValueInSession("token", res.idToken);
+      });
+
+  }
+
+  logout() {
+    this.authService.logout().subscribe((res) => {
+      this.router.navigate(['/auth/close']);
+    });
+    // if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+    //   this.authService.logoutPopup({
+    //     postLogoutRedirectUri: "/",
+    //     mainWindowRedirectUri: "/"
+    //   });
+    // } else {
+    //   this.authService.logoutRedirect({
+    //     postLogoutRedirectUri: "/",
+    //   });
+    // }
+  }
+
+  ngOnDestroy(): void {
+    this._destroying$.next(undefined);
+    this._destroying$.complete();
+  }
 }

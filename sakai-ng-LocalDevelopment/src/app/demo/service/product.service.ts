@@ -7,19 +7,27 @@ import { catchError } from 'rxjs/operators';
 
 @Injectable()
 export class ProductService {
+    
 
     constructor(private http: HttpClient) { }
 
     supervisor!: any;
+    supervisorEmail!: string;
 
     setSupervisor(supervisor: any)
     {
       this.supervisor = supervisor;
     }
 
+    getSupervisorEmail(): any { return this.supervisorEmail; }
+
+    setSupervisoEmail(supervisorEmail: any)
+    {
+      this.supervisorEmail = supervisorEmail;
+    }
+
     getSupervisor(): any { return this.supervisor; }
 
- 
     getAllMeetings(supervisor: any): Observable<any> {
         const url = 'http://localhost:8080/getScheduledMeetings/'+ supervisor ;
       
